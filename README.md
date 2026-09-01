@@ -1,1 +1,44 @@
-# Griffos
+package All.Tests.GRIFFOS;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+@TeleOp(name = "RoboGriffos")
+public class RoboGriffosTeleOp extends OpMode {
+    private DcMotor LMF, RMF, LMB, RMB;
+    private DcMotor intake;
+    private static final double DEADZONE = 0.05;
+    private static final double INTAKE_POWER = 1.0;
+
+    @Override
+    public void init() {
+        LMF = hardwareMap.get(DcMotor.class, "LMF");
+        RMF = hardwareMap.get(DcMotor.class, "RMF");
+        LMB = hardwareMap.get(DcMotor.class, "LMB");
+        RMB = hardwareMap.get(DcMotor.class,"RMB");
+
+        RMF.setDirection(DcMotor.Direction.REVERSE);
+        RMB.setDirection(DcMotor.Direction.FORWARD);
+        LMB.setDirection(DcMotor.Direction.FORWARD);
+        LMF.setDirection(DcMotor.Direction.REVERSE);
+
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        LMF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        RMF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        LMB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        RMB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    @Override
+    public void loop() {
+        double x = applyDeadzone(-gamepad1.left_stick_x * 1.1);
+        double y = applyDeadzone(-gamepad1.left_stick_y);
+        double rx = applyDeadzone(gamepad1.right_stick_x);
+
+        double speedMultiplier = gamepad1.right_bumper ? 0.35 : 0.75;
+
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
