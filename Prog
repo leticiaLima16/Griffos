@@ -1,0 +1,204 @@
+package All.Tests.GRIFFOS;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+@TeleOp(name = "RoboGriffos")
+public class RoboGriffosTeleOp extends OpMode {
+    private DcMotor LMF, RMF, LMB, RMB;
+    private DcMotor intake;
+    private static final double DEADZONE = 0.05;
+    private static final double INTAKE_POWER = 1.0;
+
+    @Override
+    public void init() {
+        LMF = hardwareMap.get(DcMotor.class, "LMF");
+        RMF = hardwareMap.get(DcMotor.class, "RMF");
+        LMB = hardwareMap.get(DcMotor.class, "LMB");
+        RMB = hardwareMap.get(DcMotor.class,"RMB");
+
+        RMF.setDirection(DcMotor.Direction.REVERSE);
+        RMB.setDirection(DcMotor.Direction.FORWARD);
+        LMB.setDirection(DcMotor.Direction.FORWARD);
+        LMF.setDirection(DcMotor.Direction.REVERSE);
+
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        LMF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        RMF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        LMB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        RMB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    @Override
+    public void loop() {
+        double x = applyDeadzone(-gamepad1.left_stick_x * 1.1);
+        double y = applyDeadzone(-gamepad1.left_stick_y);
+        double rx = applyDeadzone(gamepad1.right_stick_x);
+
+        double speedMultiplier = gamepad1.right_bumper ? 0.35 : 0.75;
+
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+
+        double LMFPower = ((y - x + rx) / denominator) * speedMultiplier;
+        double RMFPower = ((y + x - rx) / denominator) * speedMultiplier;
+        double LMBPower = ((y + x + rx) / denominator) * speedMultiplier;
+        double RMBPower = ((y - x - rx) / denominator) * speedMultiplier;
+
+        LMF.setPower(LMFPower);
+        LMB.setPower(LMBPower);
+        RMF.setPower(RMFPower);
+        RMB.setPower(RMBPower);
+
+        // Intake: gatilho direito puxa, gatilho esquerdo ejeta
+        double intakePower = 0.0;
+        if (gamepad1.right_trigger > 0.1) {
+            intakePower = INTAKE_POWER;
+        } else if (gamepad1.left_trigger > 0.1) {
+            intakePower = -INTAKE_POWER;
+        }
+        intake.setPower(intakePower);
+
+
+        telemetry.addData("Potências", "FL:%.2f FR:%.2f BL:%.2f BR:%.2f",
+                LMFPower, RMFPower, LMBPower, RMBPower);
+        telemetry.addData("Modo", gamepad1.right_bumper ? "PRECISÃO" : "NORMAL");
+        telemetry.addData("Intake", "%.2f", intakePower);
+
+        telemetry.update();
+    }
+
+    private double applyDeadzone(double value) {
+        return Math.abs(value) > DEADZONE ? value : 0.0;
+    }
+}
+
+AUTONOMO BASE AZUL
+package.All.Tests.GRIFFOS;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+@Autonomous(name = "Autonomo Base Azul")
+public class AutonomoBaseAzul extends LinearOpMode {
+    private DcMotor LMF, RMF, LMB, RMB, intake;
+    public static final double CIRCUNFERENCIA_RODA_CM = 23.56;
+
+    public static final double POTENCIA_FRENTE = 0.6;
+    public static final double POTENCIA_STRAFE = 0.6;
+    public static final double MS_POR_CM_FRENTE = ;
+    public static final double MS_POR_CM_STRAFE = ;
+    public static final double POTENCIA_GIRO = 0.5;
+    public static final double MS_POR_GRAU = ;
+    public static final long TEMPO_INTAKE_MS = ;
+}
+
+//ORDEM DE MOVIMENTOS
+@Override
+public void runOpMode() {
+    LMF = hardwareMap.get(DcMotor.class, "LMF");
+    RMF = hardwareMap.get(DcMotor.class, "RMF");
+    LMB = hardwareMap.get(DcMotor.class, "LMB");
+    RMB = hardwareMap.get(DcMotor.class, "RMB");
+    intake = hardwareMap.get(DcMotor.class, "intake");
+
+    LMF.setDirection(DcMotorSimple.Direction.REVERSE);
+    RMF.setDirection(DcMotorSimple.Direction.REVERSE);
+    LMB.setDirection(DcMotorSimple.Direction.FORWARD);
+    RMB.setDirection(DcMotorSimple.Direction.FORWARD);
+
+    LMF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    RMF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    LMB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    RMB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+    waitForStart();
+    resetRuntime();
+
+    if (opModeIsActive()) {
+        strafeDireita(45);
+        frente(62);
+        strafeEsquerda(128);
+        frente(174);
+        pegarCargo();
+        re(167)
+        strafeEsquerda(30.5);
+        giraEsquerda(90);
+        depositarCargo();
+        strafeDireita();
+        frente();
+        parar();
+    }
+}
+//TEMPO
+private void mostrarTempo(String etapa) {
+    telemetry.addData("Etapa", etapa);
+    telemetry.addData("Tempo decorrido (s)", "%.1f", getRuntime());
+    telemetry.update();
+}
+
+//POWER Y, X AND RX
+
+//FRENTE
+private void frente(double distanciaCm) {
+    long tempoMs = (long) (distanciaCm * MS_POR_CM_FRENTE);
+    setPotencias(POTENCIA_FRENTE, POTENCIA_FRENTE, POTENCIA_FRENTE, POTENCIA_FRENTE);
+    sleep(tempoMs);
+    parar();
+}
+//GIRO
+private void giraEsquerda(double graus) {
+    long tempoMs = (long) (graus * MS_POR_GRAU);
+    setPotencias(-POTENCIA_GIRO, POTENCIA_GIRO, -POTENCIA_GIRO, POTENCIA_GIRO);
+    sleep(tempoMs);
+    parar();
+}
+//RÉ
+private void re(double distanciaCm) {
+    long tempoMs = (long) (distanciaCm * MS_POR_CM_FRENTE);
+    setPotencias(-POTENCIA_FRENTE, -POTENCIA_FRENTE, -POTENCIA_FRENTE, -POTENCIA_FRENTE);
+    sleep(tempoMs);
+    parar();
+}
+//STRAFE
+private void strafeDireita(double distanciaCm) {
+    long tempoMs = (long) (distanciaCm * MS_POR_CM_STRAFE);
+    setPotencias(-POTENCIA_STRAFE, POTENCIA_STRAFE, POTENCIA_STRAFE, -POTENCIA_STRAFE);
+    sleep(tempoMs);
+    parar();
+}
+//STRAFE
+private void strafeEsquerda(double distanciaCm) {
+    long tempoMs = (long) (distanciaCm * MS_POR_CM_STRAFE);
+    setPotencias(POTENCIA_STRAFE, -POTENCIA_STRAFE, -POTENCIA_STRAFE, POTENCIA_STRAFE);
+    sleep(tempoMs);
+    parar();
+}
+//POWER VALUE
+private void setPotencias(double lmf, double rmf, double lmb, double rmb) {
+    LMF.setPower(0.5);
+    RMF.setPower(0.5);
+    LMB.setPower(0.5);
+    RMB.setPower(0.5);
+}
+//STOP
+private void parar() {
+    setPotencias(0, 0, 0, 0);
+}
+
+//INTAKE
+private void pegarCargo() {
+    intake.setPower(1.0);
+    sleep(TEMPO_INTAKE_MS);
+    intake.setPower(0);
+}
+private void depositarCargo() {
+    intake.setPower(-1.0);
+    sleep(TEMPO_INTAKE_MS);
+    intake.setPower(0);
+}
