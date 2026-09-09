@@ -1,4 +1,4 @@
-package All.Tests.GRIFFOS;
+package org.firstinspires.ftc.teamcode.teste;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,24 +6,20 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Autonomous(name = "Autonomo Base Red")
-public class AutonomoBaseRed extends LinearOpMode {
+public class Griffos extends LinearOpMode {
 
     private DcMotor LMF, RMF, LMB, RMB, intake;
     public static final double CIRCUNFERENCIA_RODA_CM = 23.56;
 
     // POTÊNCIA
-    public static final double power_FRONT = 0.75;
-    public static final double power_STRAFE = 0.75;
+    public static final double power_FRONT = 1.0;
+    public static final double power_STRAFE = 1.0;
 
     // CALIBRAÇÃO
-    public static final double MS_POR_CM_FRONT = 6.8;
-    //500 RPM × 23,56 cm (circunferência da roda) = 11.780 cm/min = ≈196 cm/s
-    //POTENCIA_FRENTE = 0.75, ou seja 75%:
-    //≈196 × 0,75 ≈ 147 cm/s
-    ///MS_POR_CM_FRENTE inicial ≈ 1000 ÷ 147 ≈ 6.8 ms/cm
-    public static final double MS_POR_CM_STRAFE = 0;
-    public static final long   TIME_INTAKE_MS  = 0;
-    public static final long   TIME_OUTTAKE_MS  = 0;
+    public static final double MS_POR_CM_FRONT = 5.10;
+    public static final double MS_POR_CM_STRAFE = 0,0153; //30% de 6.8
+    public static final long   TIME_INTAKE_MS  = 20;
+    public static final long   TIME_OUTTAKE_MS  = 20;
 
     @Override
     public void runOpMode() {
@@ -53,48 +49,39 @@ public class AutonomoBaseRed extends LinearOpMode {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
     }
-
     // ROTINA (ORDEM DE MOVIMENTOS)
     private void executarRotina() {
-        strafeleft(0);
-        mostrarTime("Saída inicial ok");
+        strafeleft(76);
+        sleep(300);
 
-        front(0);
-        mostrarTime("Frente ok");
+        front(76);
+        sleep(300);
 
-        strafeRight(0);
-        mostrarTime("Strafe direita ok");
+        strafeRight(166);
+        sleep(300);
 
-        front(0);
-        mostrarTime("Frente ok");
+        front(227);
+        sleep(300);
 
         takeCargo();
-        mostrarTime("Intake ok");
+        sleep(300);
 
-        back(0);
-        mostrarTime("Ré ok");
+        back(227);
+        sleep(300);
 
-        strafeRight(0);
-        mostrarTime("Strafe direita ok");
+        strafeRight(78);
+        sleep(300);
 
         depositCargo();
-        mostrarTime("Outtake ok");
+        sleep(300);
 
-        strafeRight(0);
-        mostrarTime("Strafe direita final ok");
+        strafeRight(100);
+        sleep(300);
 
-        front(0);
-        mostrarTime("Frente final ok");
+        front(250);
+        sleep(300);
 
         parar();
-        mostrarTime("Estacionou - fim");
-    }
-
-    //  TELEMETRIA
-    private void mostrarTime(String stage) {
-        telemetry.addData("Etapa", stage);
-        telemetry.addData("Tempo decorrido (s)", "%.1f", getRuntime());
-        telemetry.update();
     }
 
     // MOVIMENTO
@@ -118,18 +105,10 @@ public class AutonomoBaseRed extends LinearOpMode {
                 (long) (distanciaCm * MS_POR_CM_STRAFE));
     }
 
-    /** Aplica potências às 4 rodas por um tempo fixo (ms) e depois para. */
     private void mover(double lmf, double rmf, double lmb, double rmb, long timeMs) {
         setPower(lmf, rmf, lmb, rmb);
         sleep(timeMs);
         parar();
-    }
-
-    private void setPower(double lmf, double rmf, double lmb, double rmb) {
-        LMF.setPower(lmf);
-        RMF.setPower(rmf);
-        LMB.setPower(lmb);
-        RMB.setPower(rmb);
     }
 
     private void parar() {
@@ -145,7 +124,7 @@ public class AutonomoBaseRed extends LinearOpMode {
 
     private void depositCargo() {
         intake.setPower(-1.0);
-            sleep(TIME_OUTTAKE_MS);
+        sleep(TIME_OUTTAKE_MS);
         intake.setPower(0);
     }
 }
