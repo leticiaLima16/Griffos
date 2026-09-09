@@ -12,22 +12,22 @@ public class AutonomoBaseAzul extends LinearOpMode {
     public static final double CIRCUNFERENCIA_RODA_CM = 23.56;
 
     // POTÊNCIA
-    public static final double POTENCIA_FRENTE = 0.75;
-    public static final double POTENCIA_STRAFE = 0.75;
+    public static final double power_FRONT = 0.75;
+    public static final double power_STRAFE = 0.75;
 
     // CALIBRAÇÃO
-    public static final double MS_POR_CM_FRENTE = 6.8;
+    public static final double MS_POR_CM_FRONT = 6.8;
     //500 RPM × 23,56 cm (circunferência da roda) = 11.780 cm/min = ≈196 cm/s
     //POTENCIA_FRENTE = 0.75, ou seja 75%:
     //≈196 × 0,75 ≈ 147 cm/s
     ///MS_POR_CM_FRENTE inicial ≈ 1000 ÷ 147 ≈ 6.8 ms/cm
     public static final double MS_POR_CM_STRAFE = 0;
-    public static final long   TEMPO_INTAKE_MS  = 0;
-    public static final long   TEMPO_OUTTAKE_MS  = 0;
+    public static final long   Time_INTAKE_MS  = 0;
+    public static final long   Time_OUTTAKE_MS  = 0;
 
     @Override
     public void runOpMode() {
-        inicializarHardware();
+        startHardware();
         waitForStart();
         resetRuntime();
 
@@ -37,7 +37,7 @@ public class AutonomoBaseAzul extends LinearOpMode {
     }
 
     // INICIALIZAÇÃO
-    private void Hardware() {
+    private void startHardware() {
         LMF = hardwareMap.get(DcMotor.class, "LMF");
         RMF = hardwareMap.get(DcMotor.class, "RMF");
         LMB = hardwareMap.get(DcMotor.class, "LMB");
@@ -56,96 +56,96 @@ public class AutonomoBaseAzul extends LinearOpMode {
 
     // ROTINA (ORDEM DE MOVIMENTOS)
     private void executarRotina() {
-        strafeDireita(45);
-        mostrarTempo("Saída inicial ok");
+        strafeRight(45);
+        mostrarTime("Saída inicial ok");
 
-        frente(62);
-        mostrarTempo("Frente ok");
+        front(62);
+        mostrarTime("Frente ok");
 
-        strafeEsquerda(128);
-        mostrarTempo("Strafe esquerda ok");
+        strafeleft(128);
+        mostrarTime("Strafe esquerda ok");
 
-        frente(174);
-        mostrarTempo("Frente ok");
+        front(174);
+        mostrarTime("Frente ok");
 
-        pegarCargo();
-        mostrarTempo("Intake ok");
+        takeCargo();
+        mostrarTime("Intake ok");
 
-        re(167);
-        mostrarTempo("Ré ok");
+        back(167);
+        mostrarTime("Ré ok");
 
-        strafeEsquerda(30.5);
-        mostrarTempo("Strafe esquerda ok");
+        strafeleft(30.5);
+        mostrarTime("Strafe esquerda ok");
 
-        depositarCargo();
-        mostrarTempo("Outtake ok");
+        depositCargo();
+        mostrarTime("Outtake ok");
 
-        strafeEsquerda(0);
-        mostrarTempo("Strafe esquerda final ok");
+        strafeleft(0);
+        mostrarTime("Strafe esquerda final ok");
 
-        frente(0);
-        mostrarTempo("Frente final ok");
+        front(0);
+        mostrarTime("Frente final ok");
 
         parar();
-        mostrarTempo("Estacionou - fim");
+        mostrarTime("Estacionou - fim");
     }
 
     //  TELEMETRIA
-    private void mostrarTempo(String etapa) {
-        telemetry.addData("Etapa", etapa);
+    private void mostrarTime(String stage) {
+        telemetry.addData("Etapa", stage);
         telemetry.addData("Tempo decorrido (s)", "%.1f", getRuntime());
         telemetry.update();
     }
 
     // MOVIMENTO
-    private void frente(double distanciaCm) {
-        mover(POTENCIA_FRENTE, POTENCIA_FRENTE, POTENCIA_FRENTE, POTENCIA_FRENTE,
-                (long) (distanciaCm * MS_POR_CM_FRENTE));
+    private void front(double distanciaCm) {
+        mover(power_FRONT, power_FRONT, power_FRONT, power_FRONT,
+                (long) (distanciaCm * MS_POR_CM_FRONT));
     }
 
-    private void re(double distanciaCm) {
-        mover(-POTENCIA_FRENTE, -POTENCIA_FRENTE, -POTENCIA_FRENTE, -POTENCIA_FRENTE,
-                (long) (distanciaCm * MS_POR_CM_FRENTE));
+    private void back(double distanciaCm) {
+        mover(-power_FRONT, -power_FRONT, -power_FRONT, -power_FRONT,
+                (long) (distanciaCm * MS_POR_CM_FRONT));
     }
 
-    private void strafeDireita(double distanciaCm) {
-        mover(-POTENCIA_STRAFE, POTENCIA_STRAFE, POTENCIA_STRAFE, -POTENCIA_STRAFE,
+    private void strafeRight(double distanciaCm) {
+        mover(-power_STRAFE, power_STRAFE, power_STRAFE, -power_STRAFE,
                 (long) (distanciaCm * MS_POR_CM_STRAFE));
     }
 
-    private void strafeEsquerda(double distanciaCm) {
-        mover(POTENCIA_STRAFE, -POTENCIA_STRAFE, -POTENCIA_STRAFE, POTENCIA_STRAFE,
+    private void strafeleft(double distanciaCm) {
+        mover(power_STRAFE, -power_STRAFE, -power_STRAFE, power_STRAFE,
                 (long) (distanciaCm * MS_POR_CM_STRAFE));
     }
 
     /** Aplica potências às 4 rodas por um tempo fixo (ms) e depois para. */
-    private void mover(double lmf, double rmf, double lmb, double rmb, long tempoMs) {
-        setPotencias(lmf, rmf, lmb, rmb);
-        sleep(tempoMs);
+    private void mover(double lmf, double rmf, double lmb, double rmb, long timeMs) {
+        setPower(lmf, rmf, lmb, rmb);
+        sleep(timeMs);
         parar();
     }
 
-    private void setPotencias(double lmf, double rmf, double lmb, double rmb) {
+    private void setPower(double lmf, double rmf, double lmb, double rmb) {
         LMF.setPower(lmf);
         RMF.setPower(rmf);
         LMB.setPower(lmb);
         RMB.setPower(rmb);
     }
 
-    private void parar() {
-        setPotencias(0, 0, 0, 0);
+    private void stop() {
+        setPower(0, 0, 0, 0);
     }
 
     //  INTAKE
-    private void pegarCargo() {
+    private void takeCargo() {
         intake.setPower(1.0);
-        sleep(TEMPO_INTAKE_MS);
+        sleep(TIME_INTAKE_MS);
         intake.setPower(0);
     }
 
-    private void depositarCargo() {
+    private void depositCargo() {
         intake.setPower(-1.0);
-        sleep(TEMPO_INTAKE_MS);
+        sleep(TIME_OUTTAKE_MS);
         intake.setPower(0);
     }
 }
