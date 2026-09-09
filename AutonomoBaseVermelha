@@ -1,0 +1,151 @@
+package All.Tests.GRIFFOS;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+@Autonomous(name = "Autonomo Base Red")
+public class AutonomoBaseRed extends LinearOpMode {
+
+    private DcMotor LMF, RMF, LMB, RMB, intake;
+    public static final double CIRCUNFERENCIA_RODA_CM = 23.56;
+
+    // POTÊNCIA
+    public static final double power_FRONT = 0.75;
+    public static final double power_STRAFE = 0.75;
+
+    // CALIBRAÇÃO
+    public static final double MS_POR_CM_FRONT = 6.8;
+    //500 RPM × 23,56 cm (circunferência da roda) = 11.780 cm/min = ≈196 cm/s
+    //POTENCIA_FRENTE = 0.75, ou seja 75%:
+    //≈196 × 0,75 ≈ 147 cm/s
+    ///MS_POR_CM_FRENTE inicial ≈ 1000 ÷ 147 ≈ 6.8 ms/cm
+    public static final double MS_POR_CM_STRAFE = 0;
+    public static final long   TIME_INTAKE_MS  = 0;
+    public static final long   TIME_OUTTAKE_MS  = 0;
+
+    @Override
+    public void runOpMode() {
+        startHardware();
+        waitForStart();
+        resetRuntime();
+
+        if (opModeIsActive()) {
+            executarRotina();
+        }
+    }
+
+    // INICIALIZAÇÃO
+    private void startHardware() {
+        LMF = hardwareMap.get(DcMotor.class, "LMF");
+        RMF = hardwareMap.get(DcMotor.class, "RMF");
+        LMB = hardwareMap.get(DcMotor.class, "LMB");
+        RMB = hardwareMap.get(DcMotor.class, "RMB");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
+        LMF.setDirection(DcMotorSimple.Direction.REVERSE);
+        RMF.setDirection(DcMotorSimple.Direction.REVERSE);
+        LMB.setDirection(DcMotorSimple.Direction.FORWARD);
+        RMB.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        for (DcMotor motor : new DcMotor[]{LMF, RMF, LMB, RMB}) {
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        }
+    }
+
+    // ROTINA (ORDEM DE MOVIMENTOS)
+    private void executarRotina() {
+        strafeleft(0);
+        mostrarTime("Saída inicial ok");
+
+        front(0);
+        mostrarTime("Frente ok");
+
+        strafeRight(0);
+        mostrarTime("Strafe direita ok");
+
+        front(0);
+        mostrarTime("Frente ok");
+
+        takeCargo();
+        mostrarTime("Intake ok");
+
+        back(0);
+        mostrarTime("Ré ok");
+
+        strafeRight(0);
+        mostrarTime("Strafe direita ok");
+
+        depositCargo();
+        mostrarTime("Outtake ok");
+
+        strafeRight(0);
+        mostrarTime("Strafe direita final ok");
+
+        front(0);
+        mostrarTime("Frente final ok");
+
+        parar();
+        mostrarTime("Estacionou - fim");
+    }
+
+    //  TELEMETRIA
+    private void mostrarTime(String stage) {
+        telemetry.addData("Etapa", stage);
+        telemetry.addData("Tempo decorrido (s)", "%.1f", getRuntime());
+        telemetry.update();
+    }
+
+    // MOVIMENTO
+    private void front(double distanciaCm) {
+        mover(power_FRONT, power_FRONT, power_FRONT, power_FRONT,
+                (long) (distanciaCm * MS_POR_CM_FRONT));
+    }
+
+    private void back(double distanciaCm) {
+        mover(-power_FRONT, -power_FRONT, -power_FRONT, -power_FRONT,
+                (long) (distanciaCm * MS_POR_CM_FRONT));
+    }
+
+    private void strafeRight(double distanciaCm) {
+        mover(-power_STRAFE, power_STRAFE, power_STRAFE, -power_STRAFE,
+                (long) (distanciaCm * MS_POR_CM_STRAFE));
+    }
+
+    private void strafeleft(double distanciaCm) {
+        mover(power_STRAFE, -power_STRAFE, -power_STRAFE, power_STRAFE,
+                (long) (distanciaCm * MS_POR_CM_STRAFE));
+    }
+
+    /** Aplica potências às 4 rodas por um tempo fixo (ms) e depois para. */
+    private void mover(double lmf, double rmf, double lmb, double rmb, long timeMs) {
+        setPower(lmf, rmf, lmb, rmb);
+        sleep(timeMs);
+        parar();
+    }
+
+    private void setPower(double lmf, double rmf, double lmb, double rmb) {
+        LMF.setPower(lmf);
+        RMF.setPower(rmf);
+        LMB.setPower(lmb);
+        RMB.setPower(rmb);
+    }
+
+    private void parar() {
+        setPower(0, 0, 0, 0);
+    }
+
+    //  INTAKE
+    private void takeCargo() {
+        intake.setPower(1.0);
+        sleep(TIME_INTAKE_MS);
+        intake.setPower(0);
+    }
+
+    private void depositCargo() {
+        intake.setPower(-1.0);
+            sleep(TIME_OUTTAKE_MS);
+        intake.setPower(0);
+    }
+}
