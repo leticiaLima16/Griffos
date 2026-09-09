@@ -70,7 +70,6 @@ public class RoboGriffosTeleOp extends OpMode {
 
         telemetry.update();
     }
-
     private double applyDeadzone(double value) {
         return Math.abs(value) > DEADZONE ? value : 0.0;
     }
