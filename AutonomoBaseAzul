@@ -12,18 +12,14 @@ public class AutonomoBaseAzul extends LinearOpMode {
     public static final double CIRCUNFERENCIA_RODA_CM = 23.56;
 
     // POTÊNCIA
-    public static final double power_FRONT = 0.75;
-    public static final double power_STRAFE = 0.75;
+    public static final double power_FRONT = 1.0;
+    public static final double power_STRAFE = 1.0;
 
     // CALIBRAÇÃO
-    public static final double MS_POR_CM_FRONT = 6.8;
-    //500 RPM × 23,56 cm (circunferência da roda) = 11.780 cm/min = ≈196 cm/s
-    //POTENCIA_FRENTE = 0.75, ou seja 75%:
-    //≈196 × 0,75 ≈ 147 cm/s
-    ///MS_POR_CM_FRENTE inicial ≈ 1000 ÷ 147 ≈ 6.8 ms/cm
-    public static final double MS_POR_CM_STRAFE = 0;
-    public static final long   Time_INTAKE_MS  = 0;
-    public static final long   Time_OUTTAKE_MS  = 0;
+    public static final double MS_POR_CM_FRONT = 5.10;
+    public static final double MS_POR_CM_STRAFE = 0,0153; //30% de 5.10
+    public static final long   TIME_INTAKE_MS  = 20;
+    public static final long   TIME_OUTTAKE_MS  = 20;
 
     @Override
     public void runOpMode() {
@@ -56,45 +52,37 @@ public class AutonomoBaseAzul extends LinearOpMode {
 
     // ROTINA (ORDEM DE MOVIMENTOS)
     private void executarRotina() {
-        strafeRight(45);
-        mostrarTime("Saída inicial ok");
+        strafeRight(76);
+        sleep(300);
 
-        front(62);
-        mostrarTime("Frente ok");
+        front(76);
+        sleep(300);
 
-        strafeleft(128);
-        mostrarTime("Strafe esquerda ok");
+        strafeleft(172);
+        sleep(300);
 
-        front(174);
-        mostrarTime("Frente ok");
+        front(227);
+        sleep(300);
 
         takeCargo();
-        mostrarTime("Intake ok");
+        sleep(300);
 
-        back(167);
-        mostrarTime("Ré ok");
+        back(228);
+        sleep(300);
 
-        strafeleft(30.5);
-        mostrarTime("Strafe esquerda ok");
+        strafeleft(78);
+        sleep(300);
 
         depositCargo();
-        mostrarTime("Outtake ok");
+        sleep(300);
 
-        strafeleft(0);
-        mostrarTime("Strafe esquerda final ok");
+        strafeleft(100);
+        sleep(300);
 
-        front(0);
-        mostrarTime("Frente final ok");
+        front(250);
+        sleep(300);
 
         parar();
-        mostrarTime("Estacionou - fim");
-    }
-
-    //  TELEMETRIA
-    private void mostrarTime(String stage) {
-        telemetry.addData("Etapa", stage);
-        telemetry.addData("Tempo decorrido (s)", "%.1f", getRuntime());
-        telemetry.update();
     }
 
     // MOVIMENTO
@@ -118,18 +106,10 @@ public class AutonomoBaseAzul extends LinearOpMode {
                 (long) (distanciaCm * MS_POR_CM_STRAFE));
     }
 
-    /** Aplica potências às 4 rodas por um tempo fixo (ms) e depois para. */
     private void mover(double lmf, double rmf, double lmb, double rmb, long timeMs) {
         setPower(lmf, rmf, lmb, rmb);
         sleep(timeMs);
         parar();
-    }
-
-    private void setPower(double lmf, double rmf, double lmb, double rmb) {
-        LMF.setPower(lmf);
-        RMF.setPower(rmf);
-        LMB.setPower(lmb);
-        RMB.setPower(rmb);
     }
 
     private void stop() {
@@ -148,4 +128,3 @@ public class AutonomoBaseAzul extends LinearOpMode {
         sleep(TIME_OUTTAKE_MS);
         intake.setPower(0);
     }
-}
